@@ -7,12 +7,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MDNSAdapter extends RecyclerView.Adapter<MDNSEntryViewHolder> {
 
-    List<MDNSData> dnsData = Collections.emptyList();
+    List<MDNSData> dnsData = new ArrayList<>();
 
     public MDNSAdapter(final List<MDNSData> data) {
         if (data != null) {
@@ -23,7 +24,7 @@ public class MDNSAdapter extends RecyclerView.Adapter<MDNSEntryViewHolder> {
     @NonNull
     @Override
     public MDNSEntryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mdns_entry, parent, false);
         return new MDNSEntryViewHolder(view);
     }
 

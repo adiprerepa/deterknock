@@ -11,6 +11,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String IP_KEY = "com.example.deterknock.ip";
+
     // https://github.com/willowtreeapps/SimpleRecyclerViewDemo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,13 +20,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         MDNSAdapter adapter = new MDNSAdapter(getSavedMdnsItems());
         RecyclerView recyclerView = findViewById(R.id.mdns_entries);
-        recyclerView.setHasFixedSize(false);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
 
     private List<MDNSData> getSavedMdnsItems() {
         // SharedPreferences get with some key parse json list
-        return new ArrayList<>();
+        List<MDNSData> testData = new ArrayList<>();
+        testData.add(new MDNSData("fooo"));
+        testData.add(new MDNSData("bar"));
+        return testData;
     }
 }
