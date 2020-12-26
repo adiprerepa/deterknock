@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">DeterKnock</string>
+    <string name="lcd_status_hint">LCD Status</string>
+    <string name="priority_hint">Priority (1-4)</string>
+    <string name="btn_change_hint">Change</string>
 </resources>

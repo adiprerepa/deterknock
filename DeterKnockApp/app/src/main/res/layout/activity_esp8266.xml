@@ -6,4 +6,49 @@
     android:layout_height="match_parent"
     tools:context=".ESP8266Activity">
 
+    <EditText
+        android:id="@+id/lcdStatusInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="73dp"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="613dp"
+        android:ems="10"
+        android:hint="@string/lcd_status_hint"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/priorityInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="73dp"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="494dp"
+        android:ems="10"
+        android:hint="@string/priority_hint"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lcdStatusInput" />
+
+    <Button
+        android:id="@+id/submitStateChangeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="159dp"
+        android:layout_marginTop="104dp"
+        android:layout_marginEnd="159dp"
+        android:layout_marginBottom="342dp"
+        android:text="@string/btn_change_hint"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/priorityInput" />
 </androidx.constraintlayout.widget.ConstraintLayout>
