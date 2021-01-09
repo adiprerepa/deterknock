@@ -6,9 +6,11 @@
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266mDNS.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//#include <ESP8266WebServer.h>
 #include <Thread.h>
-
+#include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 // create an LCD object (Hex address, # characters, # rows)
 // my LCD display in on Hex address 27 and is a 20x4 version
 LiquidCrystal_I2C lcd(0x27, 20, 4);
@@ -28,7 +30,7 @@ Thread ledBlinkThread = Thread();
 // red -> 255, 0, 0
 // green -> 0, 255, 0
 // blue -> 0, 0, 255
-ESP8266WebServer server(8080);
+AsyncWebServer server(8080);
 
 void writeRgb(int red, int green, int blue) {
   analogWrite(redPin, red);
@@ -92,37 +94,13 @@ void setStatus(String lcdStat, String priority) {
 
 }
 
-void postStateChange() {
-  String body = server.arg("plain");
-  Serial.println(body);
-
-  DynamicJsonDocument doc(512);
-  DeserializationError error = deserializeJson(doc, body);
-  if (error) {
-    Serial.print("error parsing json ");
-    Serial.println(error.c_str());
-    String msg = error.c_str();
-    server.send(500, F("application/json"), "{\"error\": \"" + msg + "\"");
+void postStateChange(AsyncWebServerRequest *request) {
+  if (!request->hasParam("lcd_msg") || !request->hasParam("priority")) {
+    request->send(400, "text/plain", "Please include both lcd_msg and priority");
     return;
   }
-  JsonObject obj = doc.as<JsonObject>();
-  if (!server.method() == HTTP_POST) {
-    server.send(501, F("application/json"), "{}");
-    return;
-  }
-  if (!(obj.containsKey("lcd_msg") && obj.containsKey("priority"))) {
-    doc["message"] = F("data fields need to include tw'lcd_msg' and 'priority'");
-    String buf;
-    serializeJson(doc, buf);
-    server.send(400, F("application/json"), buf);
-    Serial.println("sent error - lcd_msg and priority need to exist");
-    return;
-  }
-  Serial.println("starting state change...");
-  String buf;
-  serializeJson(doc, buf);
-  setStatus(obj["lcd_msg"], obj["priority"]);
-  server.send(201, F("application/json"), buf);
+  setStatus(request->getParam("lcd_msg")->value(), request->getParam("priority")->value());
+  request->send(201, "text/plain", "Created.");
 }
 
 void setup() {
@@ -140,7 +118,7 @@ void setup() {
   Serial.print("address:\t");
   Serial.println(WiFi.localIP());
 
-  if (!MDNS.begin("aditya_door")) {
+  if (!MDNS.begin("aditya_door", WiFi.localIP())) {
     Serial.println("Err setting up MDNS responder");
   }
   Serial.println("responder started");
@@ -151,12 +129,12 @@ void setup() {
   ledBlinkThread.setInterval(750);
   ledBlinkThread.onRun(toggleRed);
   curBlinkState = false;
-  server.on("/", HTTP_GET, []() {
-    server.send(200, F("text/html"),
-                F("Stop knocking on my door"));
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) {
+    req->send(200, "text/plain", "lol stop knocking pls ty. IP: " + WiFi.localIP());
   });
-  server.on(F("/stateChange"), HTTP_POST, postStateChange);
+  server.on("/stateChange", HTTP_POST, postStateChange);
   server.begin();
+  MDNS.addService("http", "tcp", 8080);
 }
 
 /*
@@ -170,11 +148,11 @@ void setup() {
 
 void loop() {
   MDNS.update();
-  server.handleClient();
   if (lcdRotateThread.shouldRun()) {
     lcdRotateThread.run();
   }
   if (ledBlinkThread.shouldRun()) {
     ledBlinkThread.run();
   }
+  Serial.println("here");
 }
