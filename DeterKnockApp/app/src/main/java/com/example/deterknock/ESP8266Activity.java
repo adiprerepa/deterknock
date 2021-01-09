@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ public class ESP8266Activity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String ip = "http://" + intent.getStringExtra(MainActivity.IP_KEY) + ":" + 8080;
+        Log.d("ESP8266", ip);
         // port 8080
         // /stateChange lcd_msg priority str
 
