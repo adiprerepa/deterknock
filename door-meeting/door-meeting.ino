@@ -150,10 +150,12 @@ void setup() {
 void loop() {
   Serial.print("MDNS Update Status: ");
   Serial.println(MDNS.update());
+  MDNS.addService("esp8266door", "tcp", 8080);
   if (lcdRotateThread.shouldRun()) {
     lcdRotateThread.run();
   }
   if (ledBlinkThread.shouldRun()) {
     ledBlinkThread.run();
   }
+  delay(1000);
 }

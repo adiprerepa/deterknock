@@ -1,5 +1,6 @@
 package com.example.deterknock;
 
+import android.app.Activity;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
@@ -18,11 +19,15 @@ public class ESPDiscoveryListener implements NsdManager.DiscoveryListener {
     private ConcurrentLinkedQueue<NsdServiceInfo> pendingNsdServices = new ConcurrentLinkedQueue<>();
     private List<NsdServiceInfo> resolvedNsdServices = Collections.synchronizedList(new ArrayList<>());
     private NsdManager manager;
-    private ESPResolveListener resolveListener;
+    private MDNSAdapter adapter;
+    private List<MDNSData> items;
+    private Activity activity;
 
-    public ESPDiscoveryListener(NsdManager manager, ESPResolveListener resolveListener) {
+    public ESPDiscoveryListener(NsdManager manager, List<MDNSData> items, MDNSAdapter adapter, Activity activity) {
         this.manager = manager;
-        this.resolveListener = resolveListener;
+        this.items = items;
+        this.adapter = adapter;
+        this.activity = activity;
     }
 
     @Override
@@ -50,7 +55,7 @@ public class ESPDiscoveryListener implements NsdManager.DiscoveryListener {
     @Override
     public void onServiceFound(NsdServiceInfo serviceInfo) {
         Log.d(TAG, "onServiceFound: " + serviceInfo.toString());
-        if (resolveListenerBusy.compareAndSet(false, true) && serviceInfo.getServiceName().equals("aditya_door")) {
+        if (resolveListenerBusy.compareAndSet(false, true)) {
             this.manager.resolveService(serviceInfo, new ESPResolveListener(this));
         } else {
             pendingNsdServices.add(serviceInfo);
@@ -71,5 +76,34 @@ public class ESPDiscoveryListener implements NsdManager.DiscoveryListener {
                 if (iterator.next().getServiceName().equals(serviceInfo.getServiceName()))
                     iterator.remove();
         }
+    }
+
+    public AtomicBoolean getResolveListenerBusy() {
+        return resolveListenerBusy;
+    }
+
+    public ConcurrentLinkedQueue<NsdServiceInfo> getPendingNsdServices() {
+        return pendingNsdServices;
+    }
+
+    public List<NsdServiceInfo> getResolvedNsdServices() {
+        return resolvedNsdServices;
+    }
+
+    public NsdManager getManager() {
+        return manager;
+    }
+
+    public MDNSAdapter getAdapter() {
+        return adapter;
+    }
+
+    public List<MDNSData> getItems() {
+        Log.d(TAG, "getItems: " + this.items.size());
+        return items;
+    }
+
+    public Activity getActivity() {
+        return activity;
     }
 }

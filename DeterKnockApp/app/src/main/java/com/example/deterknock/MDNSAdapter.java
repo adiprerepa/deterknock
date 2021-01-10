@@ -13,12 +13,10 @@ import java.util.List;
 
 public class MDNSAdapter extends RecyclerView.Adapter<MDNSEntryViewHolder> {
 
-    List<MDNSData> dnsData = new ArrayList<>();
+    List<MDNSData> dnsData;
 
     public MDNSAdapter(final List<MDNSData> data) {
-        if (data != null) {
-            dnsData.addAll(data);
-        }
+        this.dnsData = data;
     }
 
     @NonNull
