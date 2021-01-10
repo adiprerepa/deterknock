@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private List<MDNSData> getSavedMdnsItems() {
         // SharedPreferences get with some key parse json list
         List<MDNSData> testData = new ArrayList<>();
-        testData.add(new MDNSData("fooo"));
+        testData.add(new MDNSData("aditya_door.local"));
         testData.add(new MDNSData("bar"));
         return testData;
     }
