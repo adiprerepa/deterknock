@@ -147,7 +147,8 @@ void setup() {
 */
 
 void loop() {
-  MDNS.update();
+  Serial.println(MDNS.update());
+  Serial.println(MDNS.addService("http", "tcp", 8080));
   if (lcdRotateThread.shouldRun()) {
     lcdRotateThread.run();
   }
