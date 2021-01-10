@@ -134,7 +134,8 @@ void setup() {
   });
   server.on("/stateChange", HTTP_POST, postStateChange);
   server.begin();
-  MDNS.addService("http", "tcp", 8080);
+  Serial.print("Adding Service... : ");
+  Serial.println(MDNS.addService("esp8266door", "tcp", 8080));
 }
 
 /*
@@ -147,13 +148,12 @@ void setup() {
 */
 
 void loop() {
+  Serial.print("MDNS Update Status: ");
   Serial.println(MDNS.update());
-  Serial.println(MDNS.addService("http", "tcp", 8080));
   if (lcdRotateThread.shouldRun()) {
     lcdRotateThread.run();
   }
   if (ledBlinkThread.shouldRun()) {
     ledBlinkThread.run();
   }
-  Serial.println("here");
 }
