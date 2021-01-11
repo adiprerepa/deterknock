@@ -33,7 +33,7 @@ public class StateChangeAsyncTask extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         try {
-            String u = params[0] + String.format("?lcd_msg=%s&priority=%s", params[1], params[2]);
+            String u = params[0] + String.format("/stateChange?lcd_msg=%s&priority=%s", params[1], params[2]);
             Log.d(TAG, "doInBackground: " + u);
             URL url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

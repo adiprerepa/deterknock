@@ -1,5 +1,6 @@
 #include <ArduinoJson.h>
 
+#include "wifipass.h"
 #include "Wire.h"
 #include "LiquidCrystal_I2C.h"
 #include <ESP8266WiFi.h>
@@ -14,22 +15,24 @@
 // create an LCD object (Hex address, # characters, # rows)
 // my LCD display in on Hex address 27 and is a 20x4 version
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+// Multi-Network scenarios work well here, as clients in different
+//  networks can change the state of a node.
 ESP8266WiFiMulti wifiMulti;
-const char* ssid = "onhub";
-const char* pass = "ekchotaghar";
 const int serverPort = 8080;
 const int greenPin = 12;
 const int redPin = 13;
 const int bluePin = 14;
 
+// globally-held LCD message
 String curStatStr;
+// curStatStr.size()
 int statSize;
 boolean curBlinkState;
+// LCD rotation for 16+ characters needs to be abstracted
+//  to a separate thread, same goes for when the LED blinks on priority 1.
 Thread lcdRotateThread = Thread();
 Thread ledBlinkThread = Thread();
-// red -> 255, 0, 0
-// green -> 0, 255, 0
-// blue -> 0, 0, 255
+// AsyncWebServer so we can run MDNS.update on the "main" thread
 AsyncWebServer server(8080);
 
 void writeRgb(int red, int green, int blue) {
@@ -63,37 +66,57 @@ void rotateLcd() {
 
 void setStatus(String lcdStat, String priority) {
   lcd.clear();
+  // only start rotating if the length of the message
+  // is more than 16 (LCD is 16*2)
   if (lcdStat.length() > 16) {
     curStatStr = lcdStat + " ";
     statSize = curStatStr.length();
+    // enable rotating of the 16+ char string
     lcdRotateThread.enabled = true;
-    Serial.println("enabled lcd thread");
     lcd.setCursor(0, 1);
     lcd.print("Priority: " + priority);
   } else {
+    // stop rotating
     lcdRotateThread.enabled = false;
     lcd.setCursor(0, 0);
-    Serial.println(lcdStat);
     lcd.print(lcdStat);
-    delay(250);
     lcd.setCursor(0, 1);
-    lcd.print("Priority: " + String(priority));
+    lcd.print("Priority: " + priority);
   }
   int p = priority.toInt();
-  if (p == 1) {
-    ledBlinkThread.enabled = true;
-    return;
-  } else if (p == 2) {
-    writeRgb(255, 0, 0);
-  } else if (p == 3) {
-    writeRgb(255, 255, 0);
-  } else if (p == 4) {
-    writeRgb(0, 255, 0);
+  switch (p) {
+    case 1:
+      ledBlinkThread.enabled = true;
+      return;
+    case 2:
+      writeRgb(255, 0, 0);
+      break;
+    case 3:
+      writeRgb(255, 255, 0);
+      break;
+    case 4:
+      writeRgb(0, 255, 0);
+      break;
+    default:
+      Serial.println("Unknown priority, defaulting to 2..");
+      writeRgb(255, 0, 0);
+      break;
   }
+//  if (p == 1) {
+//    ledBlinkThread.enabled = true;
+//    return;
+//  } else if (p == 2) {
+//    writeRgb(255, 0, 0);
+//  } else if (p == 3) {
+//    writeRgb(255, 255, 0);
+//  } else if (p == 4) {
+//    writeRgb(0, 255, 0);
+//  }
   ledBlinkThread.enabled = false;
 
 }
 
+// post callback
 void postStateChange(AsyncWebServerRequest *request) {
   if (!request->hasParam("lcd_msg") || !request->hasParam("priority")) {
     request->send(400, "text/plain", "Please include both lcd_msg and priority");
@@ -104,10 +127,9 @@ void postStateChange(AsyncWebServerRequest *request) {
 }
 
 void setup() {
-  lcd.init();
-  lcd.backlight();
   Serial.begin(115200);
-  // we can eventually do multi network
+  lcd.init();
+  lcd.backlight(); 
   wifiMulti.addAP(ssid, pass);
   while (wifiMulti.run() != WL_CONNECTED) {
     delay(1000);
@@ -118,6 +140,7 @@ void setup() {
   Serial.print("address:\t");
   Serial.println(WiFi.localIP());
 
+  // change MDNS name here from aditya_door to anything
   if (!MDNS.begin("aditya_door", WiFi.localIP())) {
     Serial.println("Err setting up MDNS responder");
   }
@@ -130,7 +153,7 @@ void setup() {
   ledBlinkThread.onRun(toggleRed);
   curBlinkState = false;
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) {
-    req->send(200, "text/plain", "lol stop knocking pls ty. IP: " + WiFi.localIP());
+    req->send(200, "text/plain", "DeterKnock - Aditya Prerepa. This node's IP: " + WiFi.localIP().toString());
   });
   server.on("/stateChange", HTTP_POST, postStateChange);
   server.begin();
@@ -138,18 +161,10 @@ void setup() {
   Serial.println(MDNS.addService("esp8266door", "tcp", 8080));
 }
 
-/*
-   Flow:
-   save current state globally
-   mdns.update()
-   display current state on screen/leds
-   wait for state change
-   async check for
-*/
-
 void loop() {
-  Serial.print("MDNS Update Status: ");
-  Serial.println(MDNS.update());
+  // im not sure why we constantly have to advertise the service,
+  //  but it doesn't work without. It just drops off after a while.
+  MDNS.update();
   MDNS.addService("esp8266door", "tcp", 8080);
   if (lcdRotateThread.shouldRun()) {
     lcdRotateThread.run();
@@ -157,5 +172,6 @@ void loop() {
   if (ledBlinkThread.shouldRun()) {
     ledBlinkThread.run();
   }
+  // this delay needs to exist so we dont overload mDNS.
   delay(1000);
 }

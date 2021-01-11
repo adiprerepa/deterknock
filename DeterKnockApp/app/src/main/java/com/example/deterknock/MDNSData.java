@@ -40,4 +40,10 @@ public class MDNSData {
     public void setPort(int port) {
         this.port = port;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "MDNSData name: " + name + " ip: " + this.ip.toString() + " port: " + port;
+    }
 }

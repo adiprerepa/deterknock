@@ -103,6 +103,10 @@ public class ESPDiscoveryListener implements NsdManager.DiscoveryListener {
         return items;
     }
 
+    public void setItems(List<MDNSData> items) {
+        this.items = items;
+    }
+
     public Activity getActivity() {
         return activity;
     }
