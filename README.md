@@ -16,8 +16,7 @@ advertises a TCP service on the `esp8266door` channel, which is how the android 
 
 The Android App shows a list of local services, and you are able to select any one of them to set the status of the LCD.
 
-![Apparatus](https://github.com/adiprerepa/deterknock/blob/master/docs/PXL_20210112_061811548.jpg)
+<img src="https://github.com/adiprerepa/deterknock/blob/master/docs/PXL_20210112_061811548.jpg" width=100 height=100>
 ![Home Screen](https://github.com/adiprerepa/deterknock/blob/master/docs/Screenshot_20210111-221020.png)
 ![Device Screen](https://github.com/adiprerepa/deterknock/blob/master/docs/Screenshot_20210111-221037.png)
-![Device Filled In](https://github.com/adiprerepa/deterknock/blob/master/docs/Screenshot_20210111-221048.png)
 
