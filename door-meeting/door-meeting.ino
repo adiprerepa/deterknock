@@ -141,7 +141,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   // change MDNS name here from aditya_door to anything
-  if (!MDNS.begin("aditya_door", WiFi.localIP())) {
+  if (!MDNS.begin(device_name, WiFi.localIP())) {
     Serial.println("Err setting up MDNS responder");
   }
   Serial.println("responder started");
